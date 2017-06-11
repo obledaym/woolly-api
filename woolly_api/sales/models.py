@@ -82,8 +82,6 @@ class Item(models.Model):
         if len(ItemSpecifications.objects.filter(woolly_user_type=woollyusertype, item__pk=self.pk)) == 0:
             raise ValidationError('This UserType does not have access to his item')
 
-        remaining = None
-
         # Simple condition on the initial item quantity
         sold_quantity = OrderLine.objects.filter(item=self).aggregate(Sum('quantity'))
         sold = sold_quantity.get('quantity__sum') if sold_quantity.get('quantity__sum') is not None else 0
