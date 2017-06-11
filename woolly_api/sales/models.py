@@ -1,7 +1,7 @@
 from django.db import models
 from django.conf import settings
 from authentication.models import WoollyUserType, WoollyUser
-from django.core.exceptions import ValidationError, ObjectDoesNotExist
+from django.core.exceptions import ValidationError
 from django.db.models import Sum
 
 
