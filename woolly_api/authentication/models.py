@@ -31,7 +31,7 @@ class WoollyUserType(models.Model):
 class WoollyUserManager(BaseUserManager):
     # required by Django
 
-    def create_user(self, login, password=None, **other_fields):
+    def create_user(self, login, password = None, **other_fields):
         if not login:
             raise ValueError('The given login must be set')
         user = self.model(login=login,
