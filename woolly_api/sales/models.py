@@ -1,5 +1,7 @@
 from django.db import models
 from django.conf import settings
+from django.core.exceptions import ValidationError
+from django.db.models import Sum
 
 
 class Association(models.Model):
@@ -33,7 +35,7 @@ class Sale(models.Model):
     begin_date = models.DateField()
     end_date = models.DateField()
     max_payment_date = models.DateField()
-    max_item_quantity = models.IntegerField()
+    # max_item_quantity = models.IntegerField()
 
     paymentmethods = models.ForeignKey(
         PaymentMethod,
@@ -55,7 +57,6 @@ class Sale(models.Model):
 class Item(models.Model):
     name = models.CharField(max_length=200)
     description = models.CharField(max_length=1000)
-    remaining_quantity = models.IntegerField()
     initial_quantity = models.IntegerField()
     sale = models.ForeignKey(
         Sale, on_delete=models.CASCADE, related_name='items')
@@ -63,6 +64,38 @@ class Item(models.Model):
     class JSONAPIMeta:
         resource_name = "items"
 
+    def remaining(self, woollyusertype):
+        """
+        Return the remaining items, using the minimum between initial_quantity of the item minus the sold items,
+        the quantity of the item_group minus the sold items of this group and the quantity of the itemspecification for
+        the woollyusertype and the sold items for this usertype
+
+        :param woollyusertype: The type of the user to check the remaining quantity
+        :return: The number of remaining items for this woollyusertype
+        :raise: ValidationError if the item is not in db yet or if the corresponding WoollyUserType has no access to this
+        item (no corresponding ItemSpecification for his type)
+        """
+        if self.pk == None:
+            raise ValidationError('Primary key not set')
+
+        # No itemspecifications corresponding to this user type
+        if len(ItemSpecifications.objects.filter(woolly_user_type=woollyusertype, item__pk=self.pk)) == 0:
+            raise ValidationError('This UserType does not have access to his item')
+
+        remaining = None
+
+        # Simple condition on the initial item quantity
+        sold_quantity = OrderLine.objects.filter(item=self).aggregate(Sum('quantity'))
+        sold = sold_quantity.get('quantity__sum') if sold_quantity.get('quantity__sum') is not None else 0
+        remaining = self.initial_quantity - sold
+
+        # Complex condition using the user type and the quantity in the corresponding itemspecification
+        sold_quantity = OrderLine.objects.filter(order__owner__type=woollyusertype, item=self).aggregate(Sum('quantity'))
+        sold = sold_quantity.get('quantity__sum') if sold_quantity.get('quantity__sum') is not None else 0
+        initial = ItemSpecifications.objects.get(item=self, woolly_user_type=woollyusertype).quantity
+        remaining = initial - sold if initial - sold < remaining else remaining
+
+        return remaining
 
 class ItemSpecifications(models.Model):
     woolly_user_type = models.ForeignKey(
