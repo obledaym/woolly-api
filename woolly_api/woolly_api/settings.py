@@ -42,7 +42,6 @@ INSTALLED_APPS = [
     'rest_framework',
     'cas',
     'corsheaders',
-    'core',
     'authentication',
     'sales',
 ]
