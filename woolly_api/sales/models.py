@@ -35,7 +35,6 @@ class Sale(models.Model):
     begin_date = models.DateField()
     end_date = models.DateField()
     max_payment_date = models.DateField()
-    # max_item_quantity = models.IntegerField()
 
     paymentmethods = models.ForeignKey(
         PaymentMethod,
@@ -75,7 +74,7 @@ class Item(models.Model):
         :raise: ValidationError if the item is not in db yet or if the corresponding WoollyUserType has no access to this
         item (no corresponding ItemSpecification for his type)
         """
-        if self.pk == None:
+        if self.pk is None:
             raise ValidationError('Primary key not set')
 
         # No itemspecifications corresponding to this user type

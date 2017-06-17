@@ -41,7 +41,7 @@ class ItemSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Item
-        fields = ('id', 'name', 'description', 'remaining_quantity',
+        fields = ('id', 'name', 'description',
                   'initial_quantity', 'itemspecifications')
 
     class JSONAPIMeta:
@@ -108,7 +108,7 @@ class SalePSerializer(serializers.ModelSerializer):
     class Meta:
         model = Sale
         fields = ('id', 'name', 'description', 'creation_date', 'begin_date',
-                  'end_date', 'max_payment_date', 'max_item_quantity', 'association',
+                  'end_date', 'max_payment_date', 'association',
                   'items')
 
     class JSONAPIMeta:
@@ -155,7 +155,7 @@ class SaleSerializer(serializers.ModelSerializer):
     class Meta:
         model = Sale
         fields = ('id', 'name', 'description', 'creation_date', 'begin_date',
-                  'end_date', 'max_payment_date', 'max_item_quantity', 'association',
+                  'end_date', 'max_payment_date', 'association',
                   'items', 'paymentmethods')
 
     class JSONAPIMeta:
