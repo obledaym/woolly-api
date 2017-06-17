@@ -1,10 +1,13 @@
+from django.db import transaction
+from django.core.exceptions import ObjectDoesNotExist, ValidationError
+
 from rest_framework import viewsets
-from rest_framework import permissions
+from rest_framework import status
+from rest_framework.response import Response
 
 from rest_framework.decorators import api_view
 from rest_framework.response import Response
 from rest_framework.reverse import reverse
-from rest_framework.decorators import detail_route, list_route
 from rest_framework import permissions
 from .permissions import IsOwner
 
@@ -99,15 +102,21 @@ class OrderViewSet(viewsets.ModelViewSet):
     serializer_class = OrderSerializer
     permission_classes = (permissions.IsAuthenticated, IsOwner,)
 
+    #
+    @transaction.atomic
     def perform_create(self, serializer):
+        """
+        Save the order passed through the Post request and its nested orderlines
+        """
         # Get the customized Orderlines through JSON
-        # import pdb; pdb.set_trace()
         validate_items = []
         if 'lines' in self.request.data:
             if len(self.request.data['lines']) > 0:
                 for line in self.request.data['lines']:
                     # Check the quantity of each item
-                    # TO DO : Call the check quantity function
+                    item = Item.objects.get(id=line.get('item'))
+                    if item.remaining(self.request.user.woollyusertype) < int(line.get('quantity')):
+                        raise ValidationError('Item with key=' + str(item.pk) + ' is not available anymore')
 
                     # If there is enough stock, add the article
                     # to the validate items list

@@ -17,14 +17,14 @@ class ItemTestCase(TestCase):
             pass
 
         # init users
-        WoollyUser.objects.create_user(WoollyUserType.COTISANT, None, type=self.COTISANT_USER_TYPE)
-        WoollyUser.objects.create_user(WoollyUserType.EXTERIEUR, None, type=self.EXTE_USER_TYPE)
+        WoollyUser.objects.create_user(WoollyUserType.COTISANT, None, woollyusertype=self.COTISANT_USER_TYPE)
+        WoollyUser.objects.create_user(WoollyUserType.EXTERIEUR, None, woollyusertype=self.EXTE_USER_TYPE)
 
         # init sale
         asso = Association.objects.create(name='sdf')
         pay = PaymentMethod.objects.create(name='card')
         sale = Sale.objects.create(name='sdf', begin_date=datetime.datetime.now(), end_date=datetime.datetime.now(),
-                                   max_payment_date=datetime.datetime.now(), association=asso, payment_methods=pay)
+                                   max_payment_date=datetime.datetime.now(), association=asso, paymentmethods=pay)
 
         # init item for test_remaining_quantity_sum_orderlines_quantities
         item_test1 = Item.objects.create(name='test1', initial_quantity=self.ITEM_QUANTITY, sale=sale)

@@ -88,7 +88,7 @@ class Item(models.Model):
         remaining = self.initial_quantity - sold
 
         # Complex condition using the user type and the quantity in the corresponding itemspecification
-        sold_quantity = OrderLine.objects.filter(order__owner__type=woollyusertype, item=self).aggregate(Sum('quantity'))
+        sold_quantity = OrderLine.objects.filter(order__owner__woollyusertype=woollyusertype, item=self).aggregate(Sum('quantity'))
         sold = sold_quantity.get('quantity__sum') if sold_quantity.get('quantity__sum') is not None else 0
         initial = ItemSpecifications.objects.get(item=self, woolly_user_type=woollyusertype).quantity
         remaining = initial - sold if initial - sold < remaining else remaining
